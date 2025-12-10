@@ -85,3 +85,6 @@ uv.lock
 
 # Local config examples (keep only .example files)
 claude_desktop_config.json
+
+# Claude Code config
+CLAUDE.md
