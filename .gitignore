@@ -88,3 +88,11 @@ claude_desktop_config.json
 
 # Claude Code config
 CLAUDE.md
+
+CLAUDE_CODE_SETUP.md
+
+docs/
+chat/
+.serena/
+
+TEST_REPORT.md

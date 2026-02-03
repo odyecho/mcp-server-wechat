@@ -4,7 +4,7 @@
 
 ## 快速开始
 
-### 开发环境设置
+### 环境准备
 
 本项目使用 [uv](https://docs.astral.sh/uv/) 进行依赖管理，确保环境一致性和快速安装。
 
@@ -12,7 +12,7 @@
    ```bash
    # macOS/Linux
    curl -LsSf https://astral.sh/uv/install.sh | sh
-   
+
    # Windows
    powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
    ```
@@ -21,84 +21,185 @@
    ```bash
    git clone <repository-url>
    cd mcp-server-wechat
-   
+
    # 一键创建虚拟环境并安装所有依赖
    uv sync
    ```
 
-3. **配置环境变量**
+3. **配置环境变量**（可选）
    ```bash
    cp .env.example .env
    # 编辑 .env 文件，填入你的微信公众号 AppID 和 AppSecret
    ```
 
-### 方法一：自动安装到 Claude Desktop（推荐）
+### 配置方式
 
-1. **自动安装到 Claude Desktop**
-   ```bash
-   ./scripts/install_to_claude.sh
+#### 方式一：自动安装到 Claude Desktop（推荐）
+
+```bash
+./scripts/install_to_claude.sh
+```
+
+重启 Claude Desktop 后即可使用微信公众号相关功能。
+
+#### 方式二：在 Claude Code 中配置
+
+如果您使用 Claude Code（claude.ai/code），可以按以下步骤配置：
+
+1. **在 Claude Code 设置中添加 MCP 服务器配置**：
+   ```json
+   {
+     "name": "wechat-mcp",
+     "command": "uvx",
+     "args": [
+       "--from",
+       "/path/to/your/mcp-server-wechat",
+       "mcp-server-wechat"
+     ],
+     "env": {
+       "WECHAT_APPID": "your_app_id_here",
+       "WECHAT_SECRET": "your_app_secret_here"
+     }
+   }
    ```
 
-2. **重启 Claude Desktop**，即可使用微信公众号相关功能
+2. **备选配置方案**（使用 uv run）：
+   ```json
+   {
+     "name": "wechat-mcp",
+     "command": "uv",
+     "args": [
+       "run",
+       "--directory",
+       "/path/to/your/mcp-server-wechat",
+       "python",
+       "src/mcp_server_wechat/server.py"
+     ],
+     "env": {
+       "WECHAT_APPID": "your_app_id_here",
+       "WECHAT_SECRET": "your_app_secret_here"
+     }
+   }
+   ```
 
-### 方法二：手动配置
+**注意**：
+- 将路径替换为您的实际项目路径
+- 如果没有微信凭据，可以省略 `env` 部分（仍可使用搜索功能）
+
+#### 方式三：手动配置
 
 详细的手动配置步骤请参考 [安装配置指南](INSTALLATION_GUIDE.md)
 
 ### 开发和测试
 
 ```bash
-# 激活虚拟环境
-source .venv/bin/activate  # Linux/macOS
-# 或
-.venv\Scripts\activate     # Windows
+# 开发调试（推荐，启动 MCP Inspector 可视化界面）
+uv run fastmcp dev src/mcp_server_wechat/server.py
+# 访问 http://127.0.0.1:6274 进行测试
+
+# 直接运行服务器（STDIO 模式）
+uv run python3 src/mcp_server_wechat/server.py
 
 # 运行测试
 uv run pytest
-
-# 启动开发服务器
-uv run python -m mcp_server_wechat.server
 ```
 
-## 配置文件使用
+## 功能说明
+
+### 双数据源设计
+
+1. **微信公众号官方 API**：需要 WECHAT_APPID 和 WECHAT_SECRET，用于管理自己的公众号
+2. **搜狗微信搜索**：无需凭据，用于搜索和获取公开文章内容
+
+### 6 个核心工具
+
+- `get_account_info` - 获取公众号基本信息
+- `list_articles` - 列出公众号文章列表
+- `get_article_content` - 获取文章详细内容
+- `search_public_articles` - 搜索公开文章
+- `get_public_article_content` - 获取公开文章内容
+- `search_accounts` - 搜索公众号
+
+### 使用示例
+
+配置完成后，您可以在 Claude Code 中这样使用：
+
+**搜索公开文章**（无需凭据）：
+```
+请帮我搜索关于"ChatGPT"的微信公众号文章，找到最新的5篇
+```
+
+**获取文章内容**：
+```
+请帮我获取这篇文章的详细内容：https://mp.weixin.qq.com/s/xxxxx
+```
+
+**搜索公众号**：
+```
+请帮我搜索"机器之心"相关的公众号
+```
+
+**管理自己的公众号**（需要凭据）：
+```
+请帮我获取我的公众号基本信息
+请列出我公众号最近发布的10篇文章
+```
+
+### 微信公众号凭据获取
+
+如果您有微信公众号的开发权限：
+
+1. 登录 [微信公众平台](https://mp.weixin.qq.com/)
+2. 进入"开发" → "基本配置"
+3. 复制 AppID 和 AppSecret
+4. 填入配置文件或环境变量
+
+**重要提示**：即使没有微信公众号凭据，您仍可以使用搜索功能获取公开文章！
+
+## 常见问题解决
+
+### 1. 命令找不到
+```bash
+# 确保 uv 在 PATH 中
+echo $PATH
+which uv
+```
+
+### 2. 权限问题
+```bash
+# 给脚本执行权限
+chmod +x src/mcp_server_wechat/server.py
+```
+
+### 3. 依赖安装失败
+```bash
+# 重新安装依赖
+uv sync --reinstall
+```
+
+### 4. 配置不生效
+- 检查 JSON 配置格式是否正确
+- 确认路径是否正确
+- 重启 Claude Code
+
+## 功能限制说明
+
+### 搜索功能（无需凭据）
+- ✅ 搜索任何公开发布的微信文章
+- ✅ 获取文章完整内容
+- ✅ 搜索公众号信息
+- ⚠️ 受搜狗微信搜索反爬限制，建议适度使用
+
+### 官方 API 功能（需要凭据）
+- ✅ 获取自己公众号的完整信息
+- ✅ 管理和查看自己发布的文章
+- ✅ 获取文章统计数据
+- ⚠️ 需要已认证的公众号
+- ⚠️ 有 API 调用次数限制
 
 一个为 AI Agent 提供微信公众号文章访问和管理能力的 MCP Server。
 
-## 项目状态
-
-✅ **已完成**：
-- 完整的 FastMCP 2.0+ 框架实现
-- 6 个核心工具的完整实现
-- 微信公众号 API 客户端
-- 搜狗微信搜索客户端
-- 缓存管理系统
-- 错误处理和格式化工具
-- 通过 `fastmcp dev` 测试验证
-
-🔧 **当前状态**：
-- 服务器可以正常启动和运行
-- 所有工具都有完整的文档和类型提示
-- 支持 JSON 和 Markdown 两种响应格式
-- 支持 concise 和 detailed 两种详细级别
-- 实现了可操作的错误处理
-
-⚠️ **注意事项**：
-- 需要配置微信公众号 API 凭据才能使用官方 API 功能
-- 搜索功能可以在没有凭据的情况下使用（基于搜狗微信搜索）
-- 建议使用 `fastmcp dev` 进行开发和调试
-
-## 功能特性
-
-### 核心工具
-
-1. **get_account_info** - 获取公众号基本信息
-2. **list_articles** - 列出公众号文章列表
-3. **get_article_content** - 获取文章详细内容
-4. **search_public_articles** - 搜索公开文章
-5. **get_public_article_content** - 获取公开文章内容
-6. **search_accounts** - 搜索公众号
-
-### 技术特性
+## 技术特性
 
 - 🚀 基于 **FastMCP 2.0+** 框架
 - 📝 完整的 **Pydantic v2** 输入验证
@@ -110,94 +211,21 @@ uv run python -m mcp_server_wechat.server
 - 🔍 **搜狗微信搜索**集成
 - 🌐 支持 **STDIO** 和 **HTTP** 传输协议
 
-### 官方 API 功能（需要公众号权限）
-- 🏢 **获取公众号信息** - 验证配置并获取基本信息
-- 📝 **文章列表管理** - 获取已发布的图文消息列表
-- 📖 **文章内容获取** - 获取完整的文章内容和统计信息
-
-### 公开搜索功能（无需权限）
-- 🔍 **文章搜索** - 通过搜狗微信搜索查找公开文章
-- 📄 **内容获取** - 获取搜索到的文章详细内容
-- 🏪 **公众号搜索** - 搜索和发现相关公众号
-
-## 快速开始
-
-### 1. 安装依赖
-
-```bash
-# 使用 uv（推荐）
-cd mcp-server-wechat
-uv sync
-
-# 或使用 pip
-pip install -e .
-```
-
-### 2. 环境配置
-
-创建 `.env` 文件或设置环境变量：
-
-```bash
-# 微信公众号配置（可选，仅官方 API 功能需要）
-export WECHAT_APPID=your_app_id
-export WECHAT_SECRET=your_app_secret
-```
-
-**获取微信公众号配置：**
-1. 登录 [微信公众平台](https://mp.weixin.qq.com/)
-2. 进入"开发" → "基本配置"
-3. 获取 AppID 和 AppSecret
-4. 将服务器 IP 添加到白名单
-
-### 3. 运行服务器
-
-#### 开发调试（推荐）
-```bash
-# 使用 MCP Inspector 进行可视化调试
-uv run fastmcp dev src/mcp_server_wechat/server.py
-
-# 访问 MCP Inspector 界面（通常在 http://127.0.0.1:6274）
-# 可以在界面中测试所有工具功能
-```
-```
-
-#### 直接运行
-```bash
-# STDIO 模式（默认）
-uv run python3 src/mcp_server_wechat/server.py
-
-# HTTP 模式（可选）
-# 修改 server.py 中的 main() 函数启用 HTTP 模式
-```
-
-### 4. 安装到客户端
-
-```bash
-# 安装到 Claude Desktop
-uv run fastmcp install claude-desktop src/mcp_server_wechat/server.py --env WECHAT_APPID=xxx --env WECHAT_SECRET=xxx
-
-# 安装到其他客户端
-uv run fastmcp install cursor src/mcp_server_wechat/server.py
-```
-
 ## 工具使用指南
 
-### 1. 获取公众号信息
+### 获取公众号信息
 ```python
 # 验证配置并获取基本信息
 get_account_info(format="json", detail="concise")
 ```
 
-### 2. 浏览文章列表
+### 浏览文章列表
 ```python
 # 获取最新的 10 篇文章
 list_articles(offset=0, count=10, format="markdown", detail="concise")
-
-# 获取更多文章（分页）
-list_articles(offset=10, count=10, format="json", detail="detailed")
 ```
 
-### 3. 获取文章内容
+### 获取文章内容
 ```python
 # 使用从 list_articles 获取的 media_id
 get_article_content(
@@ -207,21 +235,21 @@ get_article_content(
 )
 ```
 
-### 4. 搜索公开文章
+### 搜索公开文章
 ```python
 # 搜索相关文章
 search_public_articles(query="人工智能", limit=10, format="json")
 
 # 在特定公众号中搜索
 search_public_articles(
-    query="ChatGPT", 
-    account_name="机器之心", 
-    limit=5, 
+    query="ChatGPT",
+    account_name="机器之心",
+    limit=5,
     format="markdown"
 )
 ```
 
-### 5. 获取公开文章内容
+### 获取公开文章内容
 ```python
 # 获取搜索到的文章内容
 get_public_article_content(
@@ -232,106 +260,21 @@ get_public_article_content(
 )
 ```
 
-### 6. 搜索公众号
+### 搜索公众号
 ```python
 # 搜索相关公众号
 search_accounts(query="机器之心", limit=5, format="json")
 ```
 
-## 配置说明
-
-### 传输协议
-
-#### STDIO（默认，推荐）
-- 适用于本地开发和 Claude Desktop 集成
-- 更安全，无需网络配置
-- 客户端管理服务器生命周期
-
-#### HTTP（可选）
-- 适用于远程访问和多客户端场景
-- 需要修改 `server.py` 中的 `main()` 函数：
-
-```python
-def main():
-    # HTTP 模式
-    mcp.run(transport="http", host="127.0.0.1", port=8000)
-```
-
-### 环境变量
+## 环境变量配置
 
 | 变量名 | 必需 | 说明 |
 |--------|------|------|
 | `WECHAT_APPID` | 可选 | 微信公众号 AppID（官方 API 功能需要） |
 | `WECHAT_SECRET` | 可选 | 微信公众号 AppSecret（官方 API 功能需要） |
 
-## 功能限制
+## 项目结构
 
-### 官方 API 限制
-- **认证要求**：需要已认证的公众号
-- **调用限制**：素材管理 API 每日限制 10 次
-- **权限范围**：只能访问自己的公众号内容
-- **IP 白名单**：需要将服务器 IP 添加到微信白名单
-
-### 搜索功能限制
-- **反爬机制**：搜狗微信搜索有反爬限制
-- **频率限制**：建议每次搜索间隔 30 秒以上
-- **稳定性**：可能遇到验证码或临时封禁
-- **内容限制**：只能获取公开发布的文章
-
-## 错误处理
-
-### 常见错误及解决方案
-
-#### 1. 配置错误
-```
-错误：获取公众号信息失败：Invalid AppID or AppSecret
-解决：检查 WECHAT_APPID 和 WECHAT_SECRET 是否正确
-```
-
-#### 2. 权限不足
-```
-错误：API 功能未开启
-解决：确认公众号已认证并开启开发者模式
-```
-
-#### 3. IP 限制
-```
-错误：IP not in whitelist
-解决：在微信公众平台添加服务器 IP 到白名单
-```
-
-#### 4. 搜索限制
-```
-错误：搜索频率过快
-解决：等待 5-10 分钟后重试，减少搜索频率
-```
-
-#### 5. 反爬限制
-```
-错误：触发反爬机制
-解决：等待 10-30 分钟后重试，使用更保守的策略
-```
-
-## 最佳实践
-
-### 1. 使用策略
-- **优先使用官方 API**：稳定可靠，推荐用于生产环境
-- **谨慎使用搜索功能**：作为补充手段，注意频率控制
-- **合理缓存**：避免重复请求，提高响应速度
-
-### 2. 错误处理
-- **检查配置**：使用前先调用 `get_account_info` 验证配置
-- **处理限制**：准备应对 API 限制和反爬机制
-- **优雅降级**：搜索失败时提供替代方案
-
-### 3. 性能优化
-- **分页获取**：大量数据使用分页避免超时
-- **格式选择**：根据需要选择 JSON 或 Markdown 格式
-- **详细程度**：使用 concise 模式减少响应大小
-
-## 开发指南
-
-### 项目结构
 ```
 mcp-server-wechat/
 ├── src/mcp_server_wechat/
@@ -343,21 +286,11 @@ mcp-server-wechat/
 │       ├── errors.py       # 错误处理
 │       └── cache.py        # 缓存管理
 ├── tests/                  # 测试文件
+├── scripts/                # 安装脚本
+├── docs/                   # 文档目录
 ├── pyproject.toml         # 项目配置
 └── README.md              # 项目文档
 ```
-
-### 调试技巧
-1. **使用 MCP Inspector**：`fastmcp dev` 提供可视化调试界面
-2. **查看日志**：注意错误信息中的具体建议
-3. **测试配置**：先测试 `get_account_info` 确认配置正确
-4. **分步调试**：从简单功能开始，逐步测试复杂功能
-
-### 扩展开发
-- **添加新工具**：在 `server.py` 中使用 `@mcp.tool` 装饰器
-- **自定义格式化**：修改 `formatters.py` 中的格式化函数
-- **增强错误处理**：在 `errors.py` 中添加新的错误类型
-- **优化缓存策略**：调整 `cache.py` 中的缓存时间
 
 ## 许可证
 
