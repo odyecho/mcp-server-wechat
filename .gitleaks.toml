@@ -1,0 +1,15 @@
+title = "gitleaks config"
+
+[extend]
+useDefault = true
+
+# ─── 全局白名单（减少误报）──────────────────────────────────────
+[allowlist]
+regexes = [
+  '''(?i)your[_\-]?(api[_\-]?)?key''',
+  '''sk_test_[a-zA-Z0-9]+''',
+  # 文档示例占位符：abcdef1234567890 形式
+  '''abcdef1234567890''',
+  # wx 开头的示例 AppID
+  '''wx1234567890abcdef''',
+]
