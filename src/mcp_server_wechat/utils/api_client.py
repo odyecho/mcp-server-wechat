@@ -74,20 +74,19 @@ class WeChatAPIClient:
         """通用 API 请求方法"""
         access_token = await self.get_access_token()
         url = f"{self.base_url}/{endpoint}"
-        
-        if params is None:
-            params = {}
-        params["access_token"] = access_token
-        
+        # access_token 始终作为 URL 参数传递
+        url_params = {"access_token": access_token}
+        body = params or {}
+
         # 添加重试机制
         max_retries = 3
         for attempt in range(max_retries):
             try:
                 async with httpx.AsyncClient(timeout=30) as client:
                     if method.upper() == "GET":
-                        response = await client.get(url, params=params)
+                        response = await client.get(url, params={**url_params, **body})
                     else:
-                        response = await client.post(url, json=params)
+                        response = await client.post(url, params=url_params, json=body)
                     
                     response.raise_for_status()
                     data = response.json()
@@ -124,7 +123,7 @@ class WeChatAPIClient:
         
         # 获取基本信息（通过获取素材总数来验证权限）
         try:
-            material_count = await self.make_request("material/get_materialcount")
+            material_count = await self.make_request("material/get_materialcount", method="GET")
             
             account_info = {
                 "name": "当前公众号",  # 无法通过 API 直接获取名称
