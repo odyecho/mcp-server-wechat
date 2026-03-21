@@ -14,13 +14,14 @@
 - ✅ **STDIO 传输协议**（默认）
 - ✅ **HTTP 传输协议**（可选）
 
-### 2. 工具实现（6个）
+### 2. 工具实现（5个）
 1. ✅ **get_account_info** - 获取公众号基本信息
-2. ✅ **list_articles** - 列出公众号文章列表  
+2. ✅ **list_articles** - 列出公众号文章列表
 3. ✅ **get_article_content** - 获取文章详细内容
 4. ✅ **search_public_articles** - 搜索公开文章
 5. ✅ **get_public_article_content** - 获取公开文章内容
-6. ✅ **search_accounts** - 搜索公众号
+
+> ~~**search_accounts**~~：已移除。搜狗公众号搜索依赖 JS 动态渲染，无法通过静态 HTTP 请求获取有效数据。
 
 ### 3. 基础设施
 - ✅ **WeChatAPIClient** - 微信公众号 API 客户端

@@ -199,7 +199,6 @@ show_completion_info() {
     echo "  - get_article_content: 获取文章详细内容"
     echo "  - search_public_articles: 搜索公开文章"
     echo "  - get_public_article_content: 获取公开文章内容"
-    echo "  - search_accounts: 搜索公众号"
     echo ""
     echo "配置文件位置: $CLAUDE_CONFIG_FILE"
     echo ""

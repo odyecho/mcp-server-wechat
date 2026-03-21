@@ -118,7 +118,6 @@ uv run pytest
 - `get_article_content` - 获取文章详细内容
 - `search_public_articles` - 搜索公开文章
 - `get_public_article_content` - 获取公开文章内容
-- `search_accounts` - 搜索公众号
 
 ### 使用示例
 
@@ -132,11 +131,6 @@ uv run pytest
 **获取文章内容**：
 ```
 请帮我获取这篇文章的详细内容：https://mp.weixin.qq.com/s/xxxxx
-```
-
-**搜索公众号**：
-```
-请帮我搜索"机器之心"相关的公众号
 ```
 
 **管理自己的公众号**（需要凭据）：
@@ -258,12 +252,6 @@ get_public_article_content(
     detail="detailed",
     extract_images=True
 )
-```
-
-### 搜索公众号
-```python
-# 搜索相关公众号
-search_accounts(query="机器之心", limit=5, format="json")
 ```
 
 ## 环境变量配置

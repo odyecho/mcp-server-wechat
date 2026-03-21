@@ -98,10 +98,6 @@ src/mcp_server_wechat/
    - ✅ 错误处理: URL 验证，内容解析错误
    - ✅ 注解: readOnlyHint=True, idempotentHint=False (反爬考虑)
 
-6. **search_accounts** - 搜索公众号
-   - ✅ 输入验证: query (1-50字符), limit (1-20), format
-   - ✅ 错误处理: 搜索限制，结果解析错误
-   - ✅ 注解: readOnlyHint=True, openWorldHint=True
 
 ### 4. 缓存系统和工具类功能 ✅
 

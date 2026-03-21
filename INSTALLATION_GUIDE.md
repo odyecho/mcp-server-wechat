@@ -151,7 +151,6 @@ Starting MCP inspector...
 3. **get_article_content** - 获取文章详细内容
 4. **search_public_articles** - 搜索公开文章
 5. **get_public_article_content** - 获取公开文章内容
-6. **search_accounts** - 搜索公众号
 
 ## 故障排除
 
