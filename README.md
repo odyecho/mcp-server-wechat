@@ -1,6 +1,8 @@
 # WeChat Official Account MCP Server
 
-一个用于访问微信公众号文章和内容的 MCP (Model Context Protocol) 服务器，支持通过配置文件方式集成到 Claude Desktop 等 MCP 客户端中。
+> **MCP Server 项目**：基于 [Model Context Protocol](https://modelcontextprotocol.io/) 标准实现的微信公众号文章访问和管理服务器，支持集成到 Claude Desktop、Cursor 等 MCP 客户端。
+>
+> **相关项目**：如果你需要 [Claude Code Skill](https://github.com/odyecho/wechat-official-account-skill)（命令行工具版本），请访问独立仓库。
 
 ## 快速开始
 
@@ -275,7 +277,6 @@ mcp-server-wechat/
 │       └── cache.py        # 缓存管理
 ├── tests/                  # 测试文件
 ├── scripts/                # 安装脚本
-├── docs/                   # 文档目录
 ├── pyproject.toml         # 项目配置
 └── README.md              # 项目文档
 ```
